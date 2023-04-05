@@ -4,10 +4,7 @@ from django.db import models
 
 class Book(models.Model):
     title = models.CharField(max_length=255)
-    author = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.CASCADE,
-    )
+    author = models.F(max_length=255)
 
     class CoverChoice(models.TextChoices):
         SOFT = "Soft"
