@@ -2,7 +2,6 @@
 
 from django.conf import settings
 from django.db import migrations, models
-import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -35,13 +34,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("inventory", models.PositiveIntegerField()),
-                (
-                    "author",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
+                ("author", models.CharField(max_length=255)),
             ],
         ),
     ]
