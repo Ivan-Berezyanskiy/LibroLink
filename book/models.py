@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -16,4 +16,7 @@ class Book(models.Model):
         default=CoverChoice.HARD,
     )
     inventory = models.PositiveIntegerField()
-    daily_fee = models
+    daily_fee = models.DecimalField(
+        decimal_places=2,
+        max_digits=9,
+        validators=(MinValueValidator(limit_value=0.01),),)
