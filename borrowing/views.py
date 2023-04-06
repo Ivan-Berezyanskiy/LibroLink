@@ -25,9 +25,18 @@ class BorrowingViewSet(
 
     def get_queryset(self):
         queryset = Borrowing.objects.select_related("user", "book")
+        is_active = self.request.query_params.get("is_active")
+        if is_active:
+            is_active = True if is_active == "True" else False
+            queryset = queryset.filter(actual_return_date__isnull=is_active)
 
         if not self.request.user.is_superuser:
             return queryset.filter(user=self.request.user)
+
+        user_id = self.request.query_params.get("user_id")
+        if user_id:
+            queryset = queryset.filter(user_id=int(user_id))
+
         return queryset
 
     def get_serializer_class(self):
