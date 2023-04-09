@@ -1,7 +1,11 @@
+import asyncio
+
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from book.serializers import BookSerializer
 from borrowing.models import Borrowing
+from telegram_bot.bot_logic import send_message
 
 
 class BorrowingSerializer(ModelSerializer):
@@ -42,9 +46,17 @@ class BorrowingCreateSerializer(ModelSerializer):
         )
         read_only_fields = ("id", "user")
 
+    def validate(self, attrs):
+        data = super(BorrowingCreateSerializer, self).validate(attrs)
+        if attrs["book"].inventory < 1:
+            raise serializers.ValidationError({
+                "book": "At the moment, we aren`t having this book."
+            })
+        return data
+
     def create(self, validated_data):
-        if validated_data["book"].inventory > 0:
-            validated_data["book"].inventory -= 1
-            validated_data["book"].save()
-            return super().create(validated_data)
-        return self.errors
+        print(validated_data["book"])
+        validated_data["book"].inventory -= 1
+        validated_data["book"].save()
+        send_message(validated_data)
+        return super().create(validated_data)

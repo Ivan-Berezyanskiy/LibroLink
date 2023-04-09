@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 
 from django.db import transaction
@@ -11,6 +12,7 @@ from borrowing.models import Borrowing
 from borrowing.serializers import (
     BorrowingSerializer,
     BorrowingCreateSerializer, )
+from telegram_bot.bot_logic import send_message
 
 
 class BorrowingViewSet(
@@ -58,6 +60,7 @@ class BorrowingViewSet(
             borrowing.book.inventory += 1
             borrowing.book.save()
             serializer = BorrowingSerializer(borrowing, many=False)
+            asyncio.run(send_message(serializer.data))
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(
