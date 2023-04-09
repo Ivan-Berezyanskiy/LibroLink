@@ -58,5 +58,10 @@ class BorrowingCreateSerializer(ModelSerializer):
         print(validated_data["book"])
         validated_data["book"].inventory -= 1
         validated_data["book"].save()
-        send_message(validated_data)
+        asyncio.run(send_message(
+            validated_data["borrow_date"],
+            validated_data["expected_return_date"],
+            validated_data["book"].title,
+            "create",
+        ))
         return super().create(validated_data)
