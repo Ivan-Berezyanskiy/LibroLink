@@ -52,6 +52,10 @@ class BorrowingCreateSerializer(ModelSerializer):
             raise serializers.ValidationError({
                 "book": "At the moment, we aren`t having this book."
             })
+        if str(attrs["expected_return_date"] - attrs["borrow_date"])[0] in ("-", "0"):
+            raise serializers.ValidationError({
+                "borrow_date": "You can create borrowing minimum on 1 day"
+            })
         return data
 
     def create(self, validated_data):

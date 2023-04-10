@@ -88,13 +88,17 @@ WSGI_APPLICATION = "library_service.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
+    # "default": {
+    #         "ENGINE": "django.db.backends.postgresql",
+    #         "HOST": os.environ.get("POSTGRES_HOST"),
+    #         "NAME": os.environ.get("POSTGRES_DB"),
+    #         "USER": os.environ.get("POSTGRES_USER"),
+    #         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+    # },  # docker
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": os.environ.get("POSTGRES_HOST"),
-        "NAME": os.environ.get("POSTGRES_DB"),
-        "USER": os.environ.get("POSTGRES_USER"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-    }
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "db.sqlite3",
+    },  # python manage.py runserver
 }
 
 # Password validation
@@ -144,6 +148,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -153,6 +158,19 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": ("book.permissions.IsAdminOrIfReadOnly",),
     "DEFAULT_THROTTLE_RATES": {"anon": "145670/day", "user": "305654/day"},
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library Service API",
+    "DESCRIPTION": "Order cinema tickets",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "defaultModelRendering": "model",
+        "defaultModelsExpandDepth": 2,
+        "defaultModelExpandDepth": 2,
+    },
 }
 
 SIMPLE_JWT = {
@@ -165,5 +183,8 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 
-CELERY_BROKER_URL = "redis://redis:6379"
-CELERY_RESULT_BACKEND = "redis://redis:6379"
+# CELERY_BROKER_URL = "redis://redis:6379"
+# CELERY_RESULT_BACKEND = "redis://redis:6379"  # docker
+
+CELERY_BROKER_URL = "127.0.0.1://redis:6379"
+CELERY_RESULT_BACKEND = "127.0.0.1://redis:6379"  # python manage.py runserver

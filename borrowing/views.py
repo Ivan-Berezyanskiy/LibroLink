@@ -2,6 +2,12 @@ import asyncio
 import datetime
 
 from django.db import transaction
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiExample,
+)
 from rest_framework import mixins, viewsets
 from rest_framework import status
 from rest_framework.decorators import action
@@ -49,6 +55,9 @@ class BorrowingViewSet(
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    @extend_schema(
+        description="Return book, set actual_return_date today"
+    )
     @transaction.atomic
     @action(detail=True, methods=["POST"], url_path="return")
     def return_book(self, request, pk=None):
@@ -72,3 +81,52 @@ class BorrowingViewSet(
             "You can`t twice return this book",
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    @extend_schema(
+        description="Admin can see all borrowings, "
+                    "but user can see only his",
+        parameters=[
+            OpenApiParameter(
+                name="is_active",
+                type=OpenApiTypes.BOOL,
+                description="Filter by is_active "
+                            "borrowings(returned book or not)",
+                examples=[
+                    OpenApiExample(
+                        "Without is_active",
+                        value="",
+                    ),
+                    OpenApiExample(
+                        "Book didn`t return",
+                        value="True",
+                    ),
+                    OpenApiExample(
+                        "Book returned",
+                        value="False",
+                    ),
+                ],
+            ),
+            OpenApiParameter(
+                name="user_id",
+                type={"type": "list", "item": "number"},
+                description="Filter by user_id(only for admins)",
+                examples=[
+                    OpenApiExample(
+                        "Without user_id",
+                        value="",
+                    ),
+                    OpenApiExample(
+                        "With user_id",
+                        value="1",
+                    ),
+                    OpenApiExample(
+                        "With another user_id",
+                        description="logic(2 or 4)",
+                        value="2",
+                    ),
+                ],
+            ),
+        ],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
