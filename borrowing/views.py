@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 
 from django.db import transaction
@@ -69,12 +68,12 @@ class BorrowingViewSet(
             borrowing.book.inventory += 1
             borrowing.book.save()
             serializer = BorrowingSerializer(borrowing, many=False)
-            asyncio.run(send_message(
+            send_message.delay(
                 serializer.data["borrow_date"],
                 serializer.data["expected_return_date"],
                 serializer.data["book"]["title"],
                 "return",
-            ))
+            )
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(

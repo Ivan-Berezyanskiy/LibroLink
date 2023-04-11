@@ -13,7 +13,6 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-import telegram
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -88,17 +87,17 @@ WSGI_APPLICATION = "library_service.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    # "default": {
-    #         "ENGINE": "django.db.backends.postgresql",
-    #         "HOST": os.environ.get("POSTGRES_HOST"),
-    #         "NAME": os.environ.get("POSTGRES_DB"),
-    #         "USER": os.environ.get("POSTGRES_USER"),
-    #         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-    # },  # docker
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "db.sqlite3",
-    },  # python manage.py runserver
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.environ.get("POSTGRES_HOST"),
+        "NAME": os.environ.get("POSTGRES_DB"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+    },  # docker
+    # "default": {
+    #    "ENGINE": "django.db.backends.sqlite3",
+    #    "NAME": "db.sqlite3",
+    # }, # python manage.py runserver
 }
 
 # Password validation
@@ -108,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME":
             "django.contrib.auth.password_validation."
-        "UserAttributeSimilarityValidator",
+            "UserAttributeSimilarityValidator",
     },
     {
         "NAME":
@@ -182,9 +181,8 @@ SIMPLE_JWT = {
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"  # docker
 
-# CELERY_BROKER_URL = "redis://redis:6379"
-# CELERY_RESULT_BACKEND = "redis://redis:6379"  # docker
-
-CELERY_BROKER_URL = "127.0.0.1://redis:6379"
-CELERY_RESULT_BACKEND = "127.0.0.1://redis:6379"  # python manage.py runserver
+# CELERY_BROKER_URL = "127.0.0.1://redis:6379"
+# CELERY_RESULT_BACKEND = "127.0.0.1://redis:6379" # python manage.py runserver

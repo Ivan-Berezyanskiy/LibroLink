@@ -3,13 +3,12 @@ from django.db import models
 
 
 class Book(models.Model):
-    title = models.CharField(max_length=255)
-    author = models.CharField(max_length=255)
-
     class CoverChoice(models.TextChoices):
         SOFT = "Soft"
         HARD = "Hard"
 
+    title = models.CharField(max_length=255)
+    author = models.CharField(max_length=255)
     cover = models.CharField(
         max_length=4,
         choices=CoverChoice.choices,
@@ -19,4 +18,4 @@ class Book(models.Model):
     daily_fee = models.DecimalField(
         decimal_places=2,
         max_digits=9,
-        validators=(MinValueValidator(limit_value=0.01),),)
+        validators=(MinValueValidator(limit_value=0.01),), )

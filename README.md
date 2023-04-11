@@ -30,7 +30,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 Create .env file in root directory and store there your 
-DJANGO_SECRET_KEY, TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID 
+SECRET_KEY, BOT_TOKEN and TELEGRAM_CHAT_ID 
 like shown in .env_sample
 
 ```

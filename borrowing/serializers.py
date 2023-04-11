@@ -1,5 +1,3 @@
-import asyncio
-
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
@@ -48,24 +46,28 @@ class BorrowingCreateSerializer(ModelSerializer):
 
     def validate(self, attrs):
         data = super(BorrowingCreateSerializer, self).validate(attrs)
-        if attrs["book"].inventory < 1:
-            raise serializers.ValidationError({
-                "book": "At the moment, we aren`t having this book."
-            })
-        if str(attrs["expected_return_date"] - attrs["borrow_date"])[0] in ("-", "0"):
+        if str(
+                attrs["expected_return_date"] - attrs["borrow_date"]
+        )[0] in ("-", "0"):
             raise serializers.ValidationError({
                 "borrow_date": "You can create borrowing minimum on 1 day"
             })
         return data
 
+    def validate_book(self, value):
+        if value.inventory < 1:
+            raise serializers.ValidationError({
+                "book": "At the moment, we aren`t having this book."
+            })
+        return value
+
     def create(self, validated_data):
-        print(validated_data["book"])
         validated_data["book"].inventory -= 1
         validated_data["book"].save()
-        asyncio.run(send_message(
+        send_message.delay(
             validated_data["borrow_date"],
             validated_data["expected_return_date"],
             validated_data["book"].title,
             "create",
-        ))
+        )
         return super().create(validated_data)
