@@ -1,5 +1,3 @@
-import datetime
-
 from django.db import transaction
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
@@ -16,8 +14,7 @@ from rest_framework.response import Response
 from borrowing.models import Borrowing
 from borrowing.serializers import (
     BorrowingSerializer,
-    BorrowingCreateSerializer, )
-from telegram_bot.utils import send_message
+    BorrowingCreateSerializer, BorrowingReturnSerializer, )
 
 
 class BorrowingViewSet(
@@ -49,6 +46,8 @@ class BorrowingViewSet(
     def get_serializer_class(self):
         if self.action == "create":
             return BorrowingCreateSerializer
+        if self.action == "return_book":
+            return BorrowingReturnSerializer
         return BorrowingSerializer
 
     def perform_create(self, serializer):
@@ -58,28 +57,15 @@ class BorrowingViewSet(
         description="Return book, set actual_return_date today"
     )
     @transaction.atomic
-    @action(detail=True, methods=["POST"], url_path="return", url_name="return")
+    @action(detail=True, methods=["POST"],
+            url_path="return", url_name="return")
     def return_book(self, request, pk=None):
-        borrowing = self.get_object()
-
-        if not borrowing.actual_return_date:
-            borrowing.actual_return_date = datetime.date.today()
-            borrowing.save()
-            borrowing.book.inventory += 1
-            borrowing.book.save()
-            serializer = BorrowingSerializer(borrowing, many=False)
-            send_message.delay(
-                serializer.data["borrow_date"],
-                serializer.data["expected_return_date"],
-                serializer.data["book"]["title"],
-                "return",
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return Response(
-            "You can`t twice return this book",
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        serializer = self.get_serializer(self.get_object(), data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data,
+                        status=status.HTTP_202_ACCEPTED, headers=headers)
 
     @extend_schema(
         description="Admin can see all borrowings, "

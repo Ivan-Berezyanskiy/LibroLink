@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
@@ -69,3 +71,45 @@ class BorrowingCreateSerializer(ModelSerializer):
             "create",
         )
         return super().create(validated_data)
+
+
+class BorrowingReturnSerializer(ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user",
+        )
+        read_only_fields = (
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user",
+        )
+
+    def validate(self, attrs):
+        data = super(BorrowingReturnSerializer, self).validate(attrs)
+        if self.instance.actual_return_date:
+            raise serializers.ValidationError({
+                "actual_return_date": "You can`t twice return this book"
+            })
+        return data
+
+    def update(self, instance, validated_data):
+        instance.actual_return_date = datetime.date.today()
+        instance.save()
+        instance.book.inventory += 1
+        instance.book.save()
+        send_message.delay(
+            instance.borrow_date,
+            instance.expected_return_date,
+            instance.book.title,
+            "return",
+        )
+        return instance
