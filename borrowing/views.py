@@ -17,7 +17,7 @@ from borrowing.models import Borrowing
 from borrowing.serializers import (
     BorrowingSerializer,
     BorrowingCreateSerializer, )
-from telegram_bot.bot_logic import send_message
+from telegram_bot.utils import send_message
 
 
 class BorrowingViewSet(
@@ -58,7 +58,7 @@ class BorrowingViewSet(
         description="Return book, set actual_return_date today"
     )
     @transaction.atomic
-    @action(detail=True, methods=["POST"], url_path="return")
+    @action(detail=True, methods=["POST"], url_path="return", url_name="return")
     def return_book(self, request, pk=None):
         borrowing = self.get_object()
 

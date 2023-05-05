@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer
 
 from book.serializers import BookSerializer
 from borrowing.models import Borrowing
-from telegram_bot.bot_logic import send_message
+from telegram_bot.utils import send_message
 
 
 class BorrowingSerializer(ModelSerializer):
@@ -62,8 +62,6 @@ class BorrowingCreateSerializer(ModelSerializer):
         return value
 
     def create(self, validated_data):
-        validated_data["book"].inventory -= 1
-        validated_data["book"].save()
         send_message.delay(
             validated_data["borrow_date"],
             validated_data["expected_return_date"],
