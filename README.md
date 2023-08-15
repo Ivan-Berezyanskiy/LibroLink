@@ -1,6 +1,6 @@
 # library-service
 
-Django Rest Framework project for management of books and borrowings in library
+Django Rest Framework project for the management of books and borrowings in the library
 
 ## Features:
 * Authentication functionality
@@ -10,10 +10,10 @@ Django Rest Framework project for management of books and borrowings in library
 
 ## How to run
 
-Project supports sending notification via telegram for various occasions. 
-Skip telegram part if you don't need this.
+The project supports sending notifications via telegram for various occasions. 
+Skip the telegram part if you don't need this.
 
-### Create telegram bot
+### Create a telegram bot
 
 1. Proceed to https://telegram.me/BotFather or search for **BotFather** in your telegram app
 2. Click **Start**
@@ -29,7 +29,7 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 ```
-Create .env file in root directory and store there your 
+Create .env file in the root directory and store there your 
 SECRET_KEY, BOT_TOKEN and TELEGRAM_CHAT_ID 
 like shown in .env_sample
 
